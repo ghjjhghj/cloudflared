@@ -29,7 +29,6 @@ COPY --from=builder --chown=nonroot /go/src/github.com/cloudflare/cloudflared/cl
 # run as nonroot user
 USER 65532:65532
 
-# Modified ENTRYPOINT and CMD for Render:
-# This ensures it stays running and looks for your TUNNEL_TOKEN environment variable.
-ENTRYPOINT ["cloudflared", "--no-autoupdate"]
-CMD ["tunnel", "run"]
+# The --metrics flag starts a web server on port 10000.
+# Render will see this port and allow external "pings" to /ready
+ENTRYPOINT ["cloudflared", "--no-autoupdate", "tunnel", "--metrics", "0.0.0.0:10000", "run"]
