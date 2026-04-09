@@ -10,7 +10,6 @@ ENV GO111MODULE=on \
   # which changes how cloudflared binds the metrics server
   CONTAINER_BUILD=1
 
-
 WORKDIR /go/src/github.com/cloudflare/cloudflared/
 
 # copy our sources into the builder image
@@ -28,11 +27,9 @@ LABEL org.opencontainers.image.source="https://github.com/cloudflare/cloudflared
 COPY --from=builder --chown=nonroot /go/src/github.com/cloudflare/cloudflared/cloudflared /usr/local/bin/
 
 # run as nonroot user
-# We need to use numeric user id's because Kubernetes doesn't support strings:
-# https://github.com/kubernetes/kubernetes/blob/v1.33.2/pkg/kubelet/kuberuntime/security_context_others.go#L49
-# The `nonroot` user maps to `65532`, from: https://github.com/GoogleContainerTools/distroless/blob/main/common/variables.bzl#L18
 USER 65532:65532
 
-# command / entrypoint of container
+# Modified ENTRYPOINT and CMD for Render:
+# This ensures it stays running and looks for your TUNNEL_TOKEN environment variable.
 ENTRYPOINT ["cloudflared", "--no-autoupdate"]
-CMD ["version"]
+CMD ["tunnel", "run"]
